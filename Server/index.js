@@ -3,37 +3,14 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
-
 const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-const allowedOrigins = [
-  'http://localhost:5173', 
-  'https://book-it-taupe.vercel.app' 
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  }
-};
-
-app.use(cors(corsOptions)); 
-
-
+app.use(cors());
 app.use(bodyParser.json());
-
-
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
@@ -70,7 +47,6 @@ app.get('/experiences/:id', async (req, res) => {
   }
 });
 
-
 app.post('/bookings', async (req, res) => {
   const { slotId, userName, userEmail } = req.body;
 
@@ -79,7 +55,6 @@ app.post('/bookings', async (req, res) => {
   }
 
   try {
-    
     const slot = await Slot.findById(slotId);
     if (!slot) {
       return res.status(404).json({ message: 'Slot not found' });
@@ -96,7 +71,6 @@ app.post('/bookings', async (req, res) => {
       slot: slotId,
       user_name: userName,
       user_email: userEmail,
-    
     });
     await newBooking.save();
 
@@ -108,11 +82,8 @@ app.post('/bookings', async (req, res) => {
   }
 });
 
-
 app.post('/promo/validate', (req, res) => {
   const { promoCode } = req.body;
-  
-
   const validCodes = {
     'SAVE10': 10,
     'FLAT100': 100,
@@ -124,8 +95,6 @@ app.post('/promo/validate', (req, res) => {
     res.status(404).json({ valid: false, message: 'Invalid code' });
   }
 });
-
-
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
