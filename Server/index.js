@@ -1,14 +1,38 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 require('dotenv').config();
+
 const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'https://book-it-taupe.vercel.app' 
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+};
+
+app.use(cors(corsOptions)); 
+
+
+app.use(bodyParser.json());
+
 
 const connectDB = async () => {
   try {
@@ -20,8 +44,7 @@ const connectDB = async () => {
   }
 };
 connectDB();
-app.use(cors()); 
-app.use(bodyParser.json()); 
+
 app.get('/experiences', async (req, res) => {
   try {
     const experiences = await Experience.find();
@@ -31,12 +54,14 @@ app.get('/experiences', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
 app.get('/experiences/:id', async (req, res) => {
   try {
     const experience = await Experience.findById(req.params.id);
     if (!experience) {
-      return res.status(404).json({ message: 'Experience not found' });
+      return res.status(404).json({ msg: 'Experience not found' });
     }
+    
     const slots = await Slot.find({ experience: req.params.id });
     res.json({ experience, slots });
   } catch (err) {
@@ -45,57 +70,62 @@ app.get('/experiences/:id', async (req, res) => {
   }
 });
 
+
 app.post('/bookings', async (req, res) => {
-  const { slotId, userName, userEmail, promoCode } = req.body;
+  const { slotId, userName, userEmail } = req.body;
+
   if (!slotId || !userName || !userEmail) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
+
   try {
-    const updatedSlot = await Slot.findOneAndUpdate(
-      { _id: slotId, $expr: { $lt: ["$booked_count", "$capacity"] } }, 
-      { $inc: { booked_count: 1 } }, 
-      { new: true } 
-    );
-    if (!updatedSlot) {
-      return res.status(400).json({ message: 'Slot is full or does not exist.' });
+    
+    const slot = await Slot.findById(slotId);
+    if (!slot) {
+      return res.status(404).json({ message: 'Slot not found' });
     }
+
+    if (slot.booked_count >= slot.capacity) {
+      return res.status(400).json({ message: 'This slot is now full. Please try another time.' });
+    }
+
+    slot.booked_count += 1;
+    await slot.save();
+
     const newBooking = new Booking({
       slot: slotId,
       user_name: userName,
       user_email: userEmail,
-      promo_code: promoCode,
+    
     });
     await newBooking.save();
-    res.status(201).json({ message: 'Booking successful!', booking: newBooking });
+
+    res.status(201).json({ message: 'Booking confirmed!', booking: newBooking });
 
   } catch (err) {
     console.error(err.message);
-    
     res.status(500).send('Server Error');
   }
 });
 
+
 app.post('/promo/validate', (req, res) => {
   const { promoCode } = req.body;
+  
 
-  if (!promoCode) {
-    return res.status(400).json({ message: 'Promo code is required' });
-  }
   const validCodes = {
-    "SAVE10": { type: 'fixed', amount: 10 },
-    "FLAT100": { type: 'fixed', amount: 100 },
-   
+    'SAVE10': 10,
+    'FLAT100': 100,
   };
-  const codeData = validCodes[promoCode.toUpperCase()];
-  if (codeData) {
-    res.json({
-      message: `Promo code "${promoCode}" applied!`,
-      discount: codeData.amount,
-      code: promoCode.toUpperCase()
-    });
+
+  if (validCodes[promoCode]) {
+    res.json({ valid: true, discount: validCodes[promoCode] });
   } else {
-    res.status(404).json({ message: 'Invalid promo code' });
+    res.status(404).json({ valid: false, message: 'Invalid code' });
   }
 });
 
+
+
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
