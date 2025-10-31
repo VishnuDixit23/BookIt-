@@ -4,7 +4,6 @@ const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
 
-
 const experiencesToSeed = [
 
   {
@@ -12,6 +11,7 @@ const experiencesToSeed = [
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes gear.',
     location: 'Kabini',
     price: 999,
+    rating: 4.8,
     image_url: 'https://images.unsplash.com/photo-1594498801830-10145295c20e?q=80&w=2070&auto=format&fit=crop',
     slots: [
       { date: '2025-11-20', start_time: '07:00 AM', end_time: '09:00 AM', capacity: 10 },
@@ -28,6 +28,7 @@ const experiencesToSeed = [
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes transport.',
     location: 'Nandi Hills',
     price: 899,
+    rating: 4.9,
     image_url: '/nandihills.jpg',
     slots: [
       { date: '2025-11-20', start_time: '04:00 AM', end_time: '08:00 AM', capacity: 15 },
@@ -35,24 +36,26 @@ const experiencesToSeed = [
       { date: '2025-11-22', start_time: '04:00 AM', end_time: '08:00 AM', capacity: 15 },
     ],
   },
-  
+
   {
     name: 'Coffee Trail',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes tasting.',
     location: 'Coorg',
     price: 1299,
+    rating: 4.7,
     image_url: 'https://images.unsplash.com/photo-1551882232-658d3d65c0b1?q=80&w=1974&auto=format&fit=crop',
     slots: [
       { date: '2025-11-20', start_time: '10:00 AM', end_time: '01:00 PM', capacity: 8 },
       { date: '2025-11-21', start_time: '10:00 AM', end_time: '01:00 PM', capacity: 8 },
     ],
   },
-
+ 
   {
     name: 'Boat Cruise',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes snacks.',
     location: 'Goa',
     price: 1999,
+    rating: 4.6,
     image_url: '/boat.jpg',
     slots: [
       { date: '2025-11-20', start_time: '04:00 PM', end_time: '06:00 PM', capacity: 20 },
@@ -64,6 +67,7 @@ const experiencesToSeed = [
     description: 'Curated small-group experiences. Certified guides. Safety first!',
     location: 'Jaipur',
     price: 600,
+    rating: 4.8,
     image_url: '/oldj.jpg',
     slots: [
       { date: '2025-11-20', start_time: '08:00 AM', end_time: '11:00 AM', capacity: 12 },
@@ -76,6 +80,7 @@ const experiencesToSeed = [
     description: 'Curated small-group experiences. Certified guides. Safety first!',
     location: 'Andaman',
     price: 4500,
+    rating: 4.9,
     image_url: 'https://images.unsplash.com/photo-1544551763-8ddA2862c763?q=80&w=2070&auto=format&fit=crop',
     slots: [
       { date: '2025-11-20', start_time: '09:00 AM', end_time: '11:00 AM', capacity: 8 },
@@ -88,18 +93,19 @@ const experiencesToSeed = [
     description: 'Curated small-group experiences. Certified guides. Safety first!',
     location: 'Munnar',
     price: 750,
+    rating: 4.7,
     image_url: '/tea.jpg',
     slots: [
       { date: '2025-11-20', start_time: '02:00 PM', end_time: '04:00 PM', capacity: 10 },
       { date: '2025-11-21', start_time: '02:00 PM', end_time: '04:00 PM', capacity: 10 },
     ],
   },
-
   {
     name: 'Bungee Jumping',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
     location: 'Rishikesh',
     price: 3500,
+    rating: 4.9,
     image_url: '/bungee.jpg',
     slots: [
       { date: '2025-11-20', start_time: '10:00 AM', end_time: '11:00 AM', capacity: 5 },
@@ -108,26 +114,24 @@ const experiencesToSeed = [
   },
 ];
 
-
 const seedDB = async () => {
   try {
     console.log('Connecting to MongoDB for seeding...');
     await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB Connected for seeding...');
-
     console.log('Deleting old data...');
     await Experience.deleteMany({});
     await Slot.deleteMany({});
     await Booking.deleteMany({});
 
     console.log('Seeding new data...');
- 
     for (const exp of experiencesToSeed) {
       const newExperience = new Experience({
         name: exp.name,
         description: exp.description,
         location: exp.location,
         price: exp.price,
+        rating: exp.rating, 
         image_url: exp.image_url,
       });
       await newExperience.save();
@@ -159,3 +163,4 @@ const seedDB = async () => {
 };
 
 seedDB();
+
