@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-
-// We define the 'props' interface to tell TypeScript what data this component expects
 type CardProps = {
   _id: string;
   image_url: string;
@@ -11,7 +9,6 @@ type CardProps = {
   price: number;
 };
 
-// --- Hardcoded Style Objects ---
 const styles = {
   card: {
     border: '1px solid rgb(222, 226, 230)',
@@ -37,8 +34,8 @@ const styles = {
   },
   imageMobile: {
     width: '120px',
-    minWidth: '120px', // Prevent shrinking
-    height: 'auto', // Auto-adjust height
+    minWidth: '120px', 
+    height: 'auto', 
     objectFit: 'cover',
   },
   content: {
@@ -46,7 +43,7 @@ const styles = {
     flex: '1 1 auto',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden', // Prevents text overflow issues
+    overflow: 'hidden', 
   },
   contentMobile: {
     padding: '12px',
@@ -68,7 +65,7 @@ const styles = {
   rating: {
     fontSize: '14px',
     color: 'rgb(108, 117, 125)',
-    flexShrink: 0, // Prevent rating from shrinking
+    flexShrink: 0, 
     paddingLeft: '8px',
   },
   title: {
@@ -80,7 +77,7 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-  description: { // Added this from the Figma design
+  description: { 
     fontSize: '14px',
     color: 'rgb(108, 117, 125)',
     lineHeight: 1.5,
@@ -90,7 +87,7 @@ const styles = {
     WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    minHeight: '42px', // 2 lines * 21px line-height
+    minHeight: '42px', 
   },
   price: {
     fontSize: '16px',
@@ -123,22 +120,17 @@ const styles = {
     cursor: 'pointer',
   }
 } as const;
-// --- End of Styles ---
-
 
 const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-
-  // Handle local vs. external images
   const imageUrl = image_url.startsWith('/')
-    ? image_url // Vercel serves from 'public' at the root
+    ? image_url 
     : image_url;
 
   const cardStyle = { ...styles.card, ...(isMobile ? styles.cardMobile : {}) };
   const imageStyle = { ...styles.image, ...(isMobile ? styles.imageMobile : {}) };
   const contentStyle = { ...styles.content, ...(isMobile ? styles.contentMobile : {}) };
 
-  // Mobile Layout
   if (isMobile) {
     return (
       <div style={cardStyle}>
@@ -151,7 +143,6 @@ const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardP
             <span style={styles.rating}>⭐ {rating ? rating.toFixed(1) : 'N/A'}</span>
           </div>
           <h3 style={styles.title}>{name}</h3>
-          {/* We don't show description on mobile to save space */}
           <p style={styles.price}>
             From ${price.toFixed(2)}
             <span style={styles.priceSpan}> / person</span>
@@ -161,7 +152,6 @@ const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardP
     );
   }
 
-  // Desktop Layout (Includes description)
   return (
     <div style={styles.card}>
       <Link to={`/details/${_id}`} style={styles.imageLink}>
@@ -177,7 +167,6 @@ const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardP
           <span style={styles.rating}>⭐ {rating ? rating.toFixed(1) : 'N/A'}</span>
         </div>
         <h3 style={styles.title}>{name}</h3>
-        {/* Added description for desktop */}
         <p style={styles.description}>Curated small-group experiences. Certified guides. Safety first!</p>
         <p style={styles.price}>
           From ${price.toFixed(2)}

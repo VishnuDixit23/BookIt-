@@ -4,6 +4,7 @@ const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
 
+
 const experiencesToSeed = [
 
   {
@@ -36,7 +37,7 @@ const experiencesToSeed = [
       { date: '2025-11-22', start_time: '04:00 AM', end_time: '08:00 AM', capacity: 15 },
     ],
   },
-
+  
   {
     name: 'Coffee Trail',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes tasting.',
@@ -49,7 +50,7 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '10:00 AM', end_time: '01:00 PM', capacity: 8 },
     ],
   },
- 
+
   {
     name: 'Boat Cruise',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes snacks.',
@@ -87,7 +88,6 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '09:00 AM', end_time: '11:00 AM', capacity: 8 },
     ],
   },
-
   {
     name: 'Tea Plantation Tour',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
@@ -100,6 +100,7 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '02:00 PM', end_time: '04:00 PM', capacity: 10 },
     ],
   },
+
   {
     name: 'Bungee Jumping',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
