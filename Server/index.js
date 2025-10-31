@@ -4,14 +4,22 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 
+// Import Models
 const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// --- CORS Configuration ---
+// This allows all origins
 app.use(cors());
+// --- End of CORS Configuration ---
+
 app.use(bodyParser.json());
+
+// --- Database Connection ---
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
@@ -22,7 +30,11 @@ const connectDB = async () => {
   }
 };
 connectDB();
+// --- End Database Connection ---
 
+// --- API Endpoints ---
+
+// GET /experiences
 app.get('/experiences', async (req, res) => {
   try {
     const experiences = await Experience.find();
@@ -32,6 +44,8 @@ app.get('/experiences', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+// GET /experiences/:id
 app.get('/experiences/:id', async (req, res) => {
   try {
     const experience = await Experience.findById(req.params.id);
@@ -46,6 +60,8 @@ app.get('/experiences/:id', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+// POST /bookings
 app.post('/bookings', async (req, res) => {
   const { slotId, userName, userEmail } = req.body;
 
@@ -80,6 +96,8 @@ app.post('/bookings', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+// POST /promo/validate
 app.post('/promo/validate', (req, res) => {
   const { promoCode } = req.body;
   
@@ -94,6 +112,8 @@ app.post('/promo/validate', (req, res) => {
     res.status(404).json({ valid: false, message: 'Invalid code' });
   }
 });
+
+// --- End of API Endpoints ---
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 

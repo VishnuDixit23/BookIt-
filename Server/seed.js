@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Import Models
 const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
 
+// 8. Corrected Seed Data
 const experiencesToSeed = [
+  // 1. Kayaking
   {
     name: 'Kayaking in Kabini',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes gear.',
@@ -22,6 +25,7 @@ const experiencesToSeed = [
       { date: '2025-11-22', start_time: '07:00 AM', end_time: '09:00 AM', capacity: 10 },
     ],
   },
+  // 2. Nandi Hills
   {
     name: 'Nandi Hills Sunrise',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes transport.',
@@ -35,6 +39,7 @@ const experiencesToSeed = [
       { date: '2025-11-22', start_time: '04:00 AM', end_time: '08:00 AM', capacity: 15 },
     ],
   },
+  // 3. Coffee Trail
   {
     name: 'Coffee Trail',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes tasting.',
@@ -47,6 +52,7 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '10:00 AM', end_time: '01:00 PM', capacity: 8 },
     ],
   },
+  // 4. Boat Cruise
   {
     name: 'Boat Cruise',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes snacks.',
@@ -58,6 +64,7 @@ const experiencesToSeed = [
       { date: '2025-11-20', start_time: '04:00 PM', end_time: '06:00 PM', capacity: 20 },
     ],
   },
+  // 5. Old City Walk
   {
     name: 'Old City Heritage Walk',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
@@ -70,6 +77,7 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '08:00 AM', end_time: '11:00 AM', capacity: 12 },
     ],
   },
+  // 6. Scuba Diving
   {
     name: 'Scuba Diving',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
@@ -82,6 +90,7 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '09:00 AM', end_time: '11:00 AM', capacity: 8 },
     ],
   },
+  // 7. Tea Plantation
   {
     name: 'Tea Plantation Tour',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
@@ -94,7 +103,7 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '02:00 PM', end_time: '04:00 PM', capacity: 10 },
     ],
   },
-
+  // 8. Bungee Jumping
   {
     name: 'Bungee Jumping',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
@@ -108,25 +117,30 @@ const experiencesToSeed = [
     ],
   },
 ];
+// --- End of Data ---
+
 
 const seedDB = async () => {
   try {
     console.log('Connecting to MongoDB for seeding...');
     await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB Connected for seeding...');
+
+    // Clear existing data
     console.log('Deleting old data...');
     await Experience.deleteMany({});
     await Slot.deleteMany({});
     await Booking.deleteMany({});
 
     console.log('Seeding new data...');
+    // Seed new experiences and slots
     for (const exp of experiencesToSeed) {
       const newExperience = new Experience({
         name: exp.name,
         description: exp.description,
         location: exp.location,
         price: exp.price,
-        rating: exp.rating, 
+        rating: exp.rating, // Make sure rating is saved
         image_url: exp.image_url,
       });
       await newExperience.save();
