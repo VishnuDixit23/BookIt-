@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Navbar from '../components/Navbar';
-import ExperienceCard from '../components/ExperienceCard';
-import { useMediaQuery } from '../hooks/useMediaQuery';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import Navbar from "../components/Navbar";
+import ExperienceCard from "../components/ExperienceCard";
 
 type Experience = {
   _id: string;
@@ -11,50 +10,15 @@ type Experience = {
   price: number;
   location: string;
   image_url: string;
-  rating: number; 
+  rating: number;
 };
 
-const styles = {
-  page: {
-    fontFamily: 'Inter, sans-serif',
-    backgroundColor: 'rgb(255, 255, 255)',
-  },
-  main: {
-    maxWidth: '1280px',
-    margin: '0 auto',
-    padding: '32px 16px',
-  },
-  grid: {
-    display: 'grid',
-    gap: '24px',
-  },
-  gridMobile: {
-    gridTemplateColumns: '1fr',
-  },
-  gridDesktop: {
-    gridTemplateColumns: 'repeat(4, 1fr)',
-  },
-  loadingText: {
-    textAlign: 'center',
-    fontSize: '18px',
-    color: 'rgb(108, 117, 125)',
-    padding: '48px',
-  },
-  errorText: {
-    textAlign: 'center',
-    fontSize: '18px',
-    color: 'rgb(220, 53, 69)',
-    padding: '48px',
-  },
-} as const;
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const HomePage = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     const fetchExperiences = async () => {
@@ -63,8 +27,8 @@ const HomePage = () => {
         const response = await axios.get(`${API_URL}/experiences`);
         setExperiences(response.data);
       } catch (err) {
-        setError('Failed to fetch experiences.');
         console.error(err);
+        setError("Failed to fetch experiences.");
       } finally {
         setLoading(false);
       }
@@ -72,48 +36,42 @@ const HomePage = () => {
     fetchExperiences();
   }, []);
 
-  const mainStyle = {
-    ...styles.main,
-    ...(isMobile ? styles.gridMobile : styles.gridDesktop),
-  };
-
   if (loading) {
     return (
-      <div style={styles.page}>
+      <div className="font-inter bg-white min-h-screen">
         <Navbar />
-        <div style={styles.loadingText}>Loading experiences...</div>
+        <div className="text-center text-gray-500 text-lg py-20">
+          Loading experiences...
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={styles.page}>
+      <div className="font-inter bg-white min-h-screen">
         <Navbar />
-        <div style={styles.errorText}>{error}</div>
+        <div className="text-center text-red-600 text-lg py-20">{error}</div>
       </div>
     );
   }
 
   return (
-    <div style={styles.page}>
+    <div className="font-inter bg-white min-h-screen">
       <Navbar />
-      <main style={mainStyle}>
-        {experiences.map((exp) => (
-          <ExperienceCard
-            key={exp._id}
-            _id={exp._id}
-            name={exp.name}
-            location={exp.location}
-            price={exp.price}
-            rating={exp.rating} 
-            image_url={exp.image_url}
-          />
-        ))}
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-8">
+          Explore Experiences
+        </h1>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {experiences.map((exp) => (
+            <ExperienceCard key={exp._id} {...exp} />
+          ))}
+        </div>
       </main>
     </div>
   );
 };
 
 export default HomePage;
-
