@@ -1,19 +1,18 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
+
 const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
 
-
 const experiencesToSeed = [
-
   {
     name: 'Kayaking in Kabini',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes gear.',
     location: 'Kabini',
     price: 999,
     rating: 4.8,
-    image_url: 'https://images.unsplash.com/photo-1594498801830-10145295c20e?q=80&w=2070&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1594498801830-10145295c20e?q=80&w=2070&auto.format&fit=crop',
     slots: [
       { date: '2025-11-20', start_time: '07:00 AM', end_time: '09:00 AM', capacity: 10 },
       { date: '2025-11-20', start_time: '09:00 AM', end_time: '11:00 AM', capacity: 10 },
@@ -23,7 +22,6 @@ const experiencesToSeed = [
       { date: '2025-11-22', start_time: '07:00 AM', end_time: '09:00 AM', capacity: 10 },
     ],
   },
-
   {
     name: 'Nandi Hills Sunrise',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes transport.',
@@ -37,20 +35,18 @@ const experiencesToSeed = [
       { date: '2025-11-22', start_time: '04:00 AM', end_time: '08:00 AM', capacity: 15 },
     ],
   },
-  
   {
     name: 'Coffee Trail',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes tasting.',
     location: 'Coorg',
     price: 1299,
     rating: 4.7,
-    image_url: 'https://images.unsplash.com/photo-1551882232-658d3d65c0b1?q=80&w=1974&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1551882232-658d3d65c0b1?q=80&w=1974&auto.format&fit=crop',
     slots: [
       { date: '2025-11-20', start_time: '10:00 AM', end_time: '01:00 PM', capacity: 8 },
       { date: '2025-11-21', start_time: '10:00 AM', end_time: '01:00 PM', capacity: 8 },
     ],
   },
-
   {
     name: 'Boat Cruise',
     description: 'Curated small-group experiences. Certified guides. Safety first! Includes snacks.',
@@ -62,7 +58,6 @@ const experiencesToSeed = [
       { date: '2025-11-20', start_time: '04:00 PM', end_time: '06:00 PM', capacity: 20 },
     ],
   },
- 
   {
     name: 'Old City Heritage Walk',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
@@ -75,14 +70,13 @@ const experiencesToSeed = [
       { date: '2025-11-21', start_time: '08:00 AM', end_time: '11:00 AM', capacity: 12 },
     ],
   },
-
   {
     name: 'Scuba Diving',
     description: 'Curated small-group experiences. Certified guides. Safety first!',
     location: 'Andaman',
     price: 4500,
     rating: 4.9,
-    image_url: 'https://images.unsplash.com/photo-1544551763-8ddA2862c763?q=80&w=2070&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1544551763-8ddA2862c763?q=80&w=2070&auto.format&fit=crop',
     slots: [
       { date: '2025-11-20', start_time: '09:00 AM', end_time: '11:00 AM', capacity: 8 },
       { date: '2025-11-21', start_time: '09:00 AM', end_time: '11:00 AM', capacity: 8 },

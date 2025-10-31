@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+
 type CardProps = {
   _id: string;
   image_url: string;
@@ -8,6 +9,7 @@ type CardProps = {
   rating: number;
   price: number;
 };
+
 
 const styles = {
   card: {
@@ -65,7 +67,7 @@ const styles = {
   rating: {
     fontSize: '14px',
     color: 'rgb(108, 117, 125)',
-    flexShrink: 0, 
+    flexShrink: 0,
     paddingLeft: '8px',
   },
   title: {
@@ -124,7 +126,7 @@ const styles = {
 const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const imageUrl = image_url.startsWith('/')
-    ? image_url 
+    ? image_url
     : image_url;
 
   const cardStyle = { ...styles.card, ...(isMobile ? styles.cardMobile : {}) };
@@ -143,6 +145,7 @@ const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardP
             <span style={styles.rating}>⭐ {rating ? rating.toFixed(1) : 'N/A'}</span>
           </div>
           <h3 style={styles.title}>{name}</h3>
+  
           <p style={styles.price}>
             From ${price.toFixed(2)}
             <span style={styles.priceSpan}> / person</span>
@@ -167,6 +170,7 @@ const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardP
           <span style={styles.rating}>⭐ {rating ? rating.toFixed(1) : 'N/A'}</span>
         </div>
         <h3 style={styles.title}>{name}</h3>
+    
         <p style={styles.description}>Curated small-group experiences. Certified guides. Safety first!</p>
         <p style={styles.price}>
           From ${price.toFixed(2)}
@@ -183,4 +187,3 @@ const ExperienceCard = ({ _id, image_url, name, location, rating, price }: CardP
 };
 
 export default ExperienceCard;
-

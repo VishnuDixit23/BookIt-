@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 
-// Import Models
 const Experience = require('./models/Experience');
 const Slot = require('./models/Slot');
 const Booking = require('./models/Booking');
@@ -12,9 +11,7 @@ const Booking = require('./models/Booking');
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(cors());
-
 app.use(bodyParser.json());
-
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
@@ -35,7 +32,6 @@ app.get('/experiences', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 app.get('/experiences/:id', async (req, res) => {
   try {
     const experience = await Experience.findById(req.params.id);
@@ -50,7 +46,6 @@ app.get('/experiences/:id', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 app.post('/bookings', async (req, res) => {
   const { slotId, userName, userEmail } = req.body;
 
@@ -85,7 +80,6 @@ app.post('/bookings', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 app.post('/promo/validate', (req, res) => {
   const { promoCode } = req.body;
   
