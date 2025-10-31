@@ -1,11 +1,9 @@
-
-import { useState } from 'react'; 
+import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { ArrowLeft } from 'lucide-react';
-
+import { ArrowLeft, Lock } from 'lucide-react';
 
 type Experience = {
   _id: string;
@@ -19,10 +17,16 @@ type Slot = {
   start_time: string;
 };
 
+type LocationState = {
+  item: Experience;
+  slot: Slot;
+};
+
 const styles = {
   page: {
     fontFamily: 'Inter, sans-serif',
     backgroundColor: 'rgb(255, 255, 255)',
+    minHeight: '100vh',
   },
   main: {
     maxWidth: '1280px',
@@ -53,8 +57,8 @@ const styles = {
   },
   card: {
     backgroundColor: 'rgb(248, 249, 250)',
-    borderRadius: '12px',
     padding: '24px',
+    borderRadius: '12px',
   },
   sectionTitle: {
     fontSize: '22px',
@@ -62,100 +66,90 @@ const styles = {
     color: 'rgb(33, 37, 41)',
     marginBottom: '24px',
   },
-  formGrid: {
+  inputGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
     gap: '16px',
     marginBottom: '16px',
   },
-  formGridMobile: {
+  inputGridDesktop: {
+    gridTemplateColumns: '1fr 1fr',
+  },
+  inputGridMobile: {
     gridTemplateColumns: '1fr',
   },
-  formField: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
   label: {
+    display: 'block',
     fontSize: '14px',
     fontWeight: 500,
     color: 'rgb(33, 37, 41)',
-    marginBottom: '8px',
+    marginBottom: '4px',
   },
   input: {
+    width: '100%',
     padding: '12px',
-    fontSize: '16px',
+    fontSize: '14px',
     border: '1px solid rgb(222, 226, 230)',
     borderRadius: '8px',
     backgroundColor: 'rgb(255, 255, 255)',
+    boxSizing: 'border-box',
   },
-  promoRow: {
+  promoContainer: {
     display: 'flex',
     gap: '8px',
-    marginBottom: '8px', 
+    marginBottom: '24px',
   },
   promoInput: {
     flexGrow: 1,
     padding: '12px',
-    fontSize: '16px',
+    fontSize: '14px',
     border: '1px solid rgb(222, 226, 230)',
     borderRadius: '8px',
     backgroundColor: 'rgb(255, 255, 255)',
+    boxSizing: 'border-box',
   },
   applyButton: {
-    padding: '0 24px',
-    fontSize: '16px',
-    fontWeight: 600,
-    color: 'rgb(255, 255, 255)',
     backgroundColor: 'rgb(33, 37, 41)',
-    border: 'none',
+    color: 'rgb(255, 255, 255)',
+    fontWeight: 500,
+    padding: '12px 24px',
     borderRadius: '8px',
+    border: 'none',
     cursor: 'pointer',
-  },
-  promoStatus: {
     fontSize: '14px',
-    height: '20px', 
-    marginBottom: '16px',
   },
-  promoError: {
-    color: 'rgb(220, 53, 69)', 
+  applyButtonLoading: {
+    backgroundColor: 'rgb(108, 117, 125)',
   },
-  promoSuccess: {
-    color: 'rgb(25, 135, 84)', 
-  },
-  checkboxRow: {
+  checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+  },
+  checkbox: {
+    width: '16px',
+    height: '16px',
   },
   checkboxLabel: {
     fontSize: '14px',
     color: 'rgb(108, 117, 125)',
   },
   summaryCard: {
-    border: '1px solid rgb(222, 226, 230)',
-    borderRadius: '12px',
-    padding: '24px',
     backgroundColor: 'rgb(248, 249, 250)',
+    padding: '24px',
+    borderRadius: '12px',
     position: 'sticky',
     top: '32px',
   },
   summaryTitle: {
-    fontSize: '22px',
-    fontWeight: 600,
-    color: 'rgb(33, 37, 41)',
-    marginBottom: '16px',
-  },
-  summaryItemTitle: {
     fontSize: '18px',
     fontWeight: 600,
     color: 'rgb(33, 37, 41)',
-    marginBottom: '16px',
   },
   summaryRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '12px',
+    marginTop: '12px',
   },
   summaryLabel: {
     fontSize: '16px',
@@ -164,7 +158,7 @@ const styles = {
   summaryValue: {
     fontSize: '16px',
     color: 'rgb(33, 37, 41)',
-    fontWeight: 600,
+    fontWeight: 500,
   },
   summaryTotalRow: {
     display: 'flex',
@@ -179,7 +173,7 @@ const styles = {
     color: 'rgb(33, 37, 41)',
     fontWeight: 700,
   },
-  confirmButton: {
+  payButton: {
     width: '100%',
     padding: '12px',
     fontSize: '16px',
@@ -190,24 +184,41 @@ const styles = {
     borderRadius: '8px',
     cursor: 'pointer',
     marginTop: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
   },
-  confirmButtonDisabled: {
+  payButtonDisabled: {
     backgroundColor: 'rgb(222, 226, 230)',
     cursor: 'not-allowed',
   },
-  errorText: {
-    color: 'rgb(220, 53, 69)',
+  errorStatus: {
     fontSize: '14px',
-    marginTop: '16px',
+    color: 'rgb(220, 53, 69)',
+    marginTop: '8px',
+  },
+  successStatus: {
+    fontSize: '14px',
+    color: 'rgb(25, 135, 84)',
+    marginTop: '8px',
+  },
+  errorText: {
     textAlign: 'center',
+    fontSize: '18px',
+    color: 'rgb(220, 53, 69)',
+    padding: '48px',
   }
 } as const;
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 const formatDate = (dateString: string) => {
+  if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -215,17 +226,63 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { item, slot } = location.state as { item: Experience, slot: Slot } || {};
+  
+  const { item, slot } = (location.state as LocationState) || {};
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [agree, setAgree] = useState(false);
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [promoCodeInput, setPromoCodeInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string, discount: number } | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
-  const [promoStatus, setPromoStatus] = useState<{ type: 'error' | 'success', message: string } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoSuccess, setPromoSuccess] = useState<string | null>(null);
+  const [discount, setDiscount] = useState(0);
+
+  if (!item || !slot) {
+    return (
+      <div style={styles.page}>
+        <Navbar />
+        <main style={styles.main}>
+          <div style={styles.errorText}>
+            Booking data is missing. Please{" "}
+            <Link to="/" style={{ color: 'rgb(13, 110, 253)' }}>go back</Link>{" "}
+            and select an experience.
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const subtotal = item.price;
+  const taxes = 0; 
+  const total = Math.max(0, subtotal + taxes - discount);
+
+  const handleApplyPromo = async () => {
+    setPromoLoading(true);
+    setPromoError(null);
+    setPromoSuccess(null);
+    try {
+      const response = await axios.post(`${API_URL}/promo/validate`, {
+        promoCode: promoCodeInput,
+      });
+      const { discount } = response.data;
+      setDiscount(discount);
+      setPromoSuccess(`Success! $${discount} discount applied.`);
+    } catch (err) {
+      setDiscount(0);
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        setPromoError('Invalid promo code.');
+      } else {
+        setPromoError('Could not apply code.');
+      }
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -238,85 +295,37 @@ const CheckoutPage = () => {
     setError(null);
 
     try {
-      await axios.post('http://localhost:5000/bookings', {
+      await axios.post(`${API_URL}/bookings`, {
         slotId: slot._id,
         userName: name,
         userEmail: email,
-        promoCode: appliedPromo?.code,
-      });
-
-      navigate('/result', { state: { success: true, item, slot, total } });
-
-    } catch (err: unknown) {
-      let errorMessage = 'An unknown error occurred.';
-      if (axios.isAxiosError(err) && err.response) {
-        errorMessage = err.response.data.message || 'Booking failed. Please try again.';
-      }
-      setError(errorMessage);
-      setIsLoading(false);
-      navigate('/result', { state: { success: false, message: errorMessage } });
-    }
-  };
-
-  const handleApplyPromo = async () => {
-    setPromoLoading(true);
-    setPromoStatus(null);
-    setAppliedPromo(null);
-
-    try {
-      const response = await axios.post('http://localhost:5000/promo/validate', {
         promoCode: promoCodeInput,
+        finalPrice: total,
       });
-      setAppliedPromo({
-        code: response.data.code,
-        discount: response.data.discount
-      });
-      setPromoStatus({ type: 'success', message: response.data.message });
 
-    } catch (err: unknown) {
-      let errorMessage = 'An unknown error occurred.';
-      if (axios.isAxiosError(err) && err.response) {
+      navigate('/result', { state: { success: true } });
+
+    } catch (err) {
+      let errorMessage = 'Booking failed. Please try again.';
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
         errorMessage = err.response.data.message;
       }
-      setPromoStatus({ type: 'error', message: errorMessage });
+      setError(errorMessage);
+      navigate('/result', { state: { success: false, message: errorMessage } });
     } finally {
-      setPromoLoading(false);
+      setIsLoading(false);
     }
   };
-
-  const subtotal = item?.price || 0;
-  const taxes = 0.00;
-  const discount = appliedPromo?.discount || 0;
-  const total = Math.max(subtotal + taxes - discount, 0);
 
   const formStyle = {
     ...styles.form,
     ...(isMobile ? styles.formMobile : {}),
   };
-  const formGridStyle = {
-    ...styles.formGrid,
-    ...(isMobile ? styles.formGridMobile : {}),
-  };
-  const buttonStyle = {
-    ...styles.confirmButton,
-    ...(isLoading || !agree ? styles.confirmButtonDisabled : {})
-  }
 
-  if (!item || !slot) {
-    return (
-      <div style={styles.page}>
-        <Navbar />
-        <main style={styles.main}>
-          <p style={{...styles.errorText, padding: 0}}>
-            No booking data found. Please start from a details page.
-          </p>
-          <Link to="/" style={{...styles.backLink, marginTop: '16px'}}>
-            Go to Home
-          </Link>
-        </main>
-      </div>
-    );
-  }
+  const inputGridStyle = {
+    ...styles.inputGrid,
+    ...(isMobile ? styles.inputGridMobile : styles.inputGridDesktop),
+  };
 
   return (
     <div style={styles.page}>
@@ -332,84 +341,82 @@ const CheckoutPage = () => {
           <div style={styles.leftColumn}>
             <div style={styles.card}>
               <h2 style={styles.sectionTitle}>Your Information</h2>
-              
-              <div style={formGridStyle}>
-                <div style={styles.formField}>
+
+              <div style={inputGridStyle}>
+                <div>
                   <label htmlFor="name" style={styles.label}>Full Name</label>
-                  <input 
-                    type="text" 
-                    id="name" 
+                  <input
+                    type="text"
+                    id="name"
                     style={styles.input}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
-                <div style={styles.formField}>
+                <div>
                   <label htmlFor="email" style={styles.label}>Email Address</label>
-                  <input 
-                    type="email" 
-                    id="email" 
+                  <input
+                    type="email"
+                    id="email"
                     style={styles.input}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
               </div>
 
-              <div style={styles.formField}>
-                <label htmlFor="promo" style={styles.label}>Promo Code</label>
-                <div style={styles.promoRow}>
-                  <input 
-                    type="text" 
+              <div style={styles.promoContainer}>
+                <div style={{flexGrow: 1}}>
+                  <label htmlFor="promo" style={styles.label}>Promo Code</label>
+                  <input
+                    type="text"
                     id="promo"
-                    placeholder="Enter code" 
+                    placeholder="Enter code"
                     style={styles.promoInput}
                     value={promoCodeInput}
                     onChange={(e) => setPromoCodeInput(e.target.value)}
                   />
-                  <button 
-                    type="button" 
-                    style={styles.applyButton}
-                    onClick={handleApplyPromo}
-                    disabled={promoLoading}
-                  >
-                    {promoLoading ? '...' : 'Apply'}
-                  </button>
                 </div>
-                
-                <div style={styles.promoStatus}>
-                  {promoStatus && (
-                    <span style={promoStatus.type === 'error' ? styles.promoError : styles.promoSuccess}>
-                      {promoStatus.message}
-                    </span>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  style={{
+                    ...styles.applyButton,
+                    ...(promoLoading ? styles.applyButtonLoading : {}),
+                    alignSelf: 'flex-end',
+                  }}
+                  onClick={handleApplyPromo}
+                  disabled={promoLoading}
+                >
+                  {promoLoading ? '...' : 'Apply'}
+                </button>
               </div>
+              
+              {promoError && <span style={styles.errorStatus}>{promoError}</span>}
+              {promoSuccess && <span style={styles.successStatus}>{promoSuccess}</span>}
 
-              <div style={styles.checkboxRow}>
-                <input 
-                  type="checkbox" 
-                  id="terms" 
+              <div style={styles.checkboxContainer}>
+                <input
+                  type="checkbox"
+                  id="terms"
+                  style={styles.checkbox}
                   checked={agree}
                   onChange={(e) => setAgree(e.target.checked)}
-                  required 
+                  required
                 />
                 <label htmlFor="terms" style={styles.checkboxLabel}>
-                  I agree to the <a href="#" style={{color: 'rgb(13, 110, 253)'}}>terms and safety policy</a>
+                  I agree to the terms and safety policy
                 </label>
               </div>
             </div>
           </div>
 
-          
           <div style={styles.rightColumn}>
             <div style={styles.summaryCard}>
-              <h2 style={styles.summaryTitle}>Booking Summary</h2>
-              
-              <p style={styles.summaryItemTitle}>{item.name}</p>
-              
+              <h2 style={styles.sectionTitle}>Booking Summary</h2>
+
+              <p style={styles.summaryTitle}>{item.name}</p>
               <div style={styles.summaryRow}>
                 <span style={styles.summaryLabel}>Date</span>
                 <span style={styles.summaryValue}>{formatDate(slot.date)}</span>
@@ -423,48 +430,43 @@ const CheckoutPage = () => {
                 <span style={styles.summaryValue}>1</span>
               </div>
 
-              <hr style={{border: 'none', borderTop: '1px solid rgb(222, 226, 230)', margin: '16px 0'}} />
+              <hr style={{ margin: '16px 0', borderTop: '1px solid rgb(222, 226, 230)', borderBottom: 'none' }} />
 
               <div style={styles.summaryRow}>
                 <span style={styles.summaryLabel}>Subtotal</span>
                 <span style={styles.summaryValue}>${subtotal.toFixed(2)}</span>
               </div>
-              
-              {appliedPromo && (
-                <div style={styles.summaryRow}>
-                  <span style={{...styles.summaryLabel, ...styles.promoSuccess}}>
-                    Promo "{appliedPromo.code}"
-                  </span>
-                  <span style={{...styles.summaryValue, ...styles.promoSuccess}}>
-                    -${discount.toFixed(2)}
-                  </span>
-                </div>
-              )}
-
               <div style={styles.summaryRow}>
                 <span style={styles.summaryLabel}>Taxes</span>
                 <span style={styles.summaryValue}>${taxes.toFixed(2)}</span>
               </div>
+              
+              {discount > 0 && (
+                <div style={styles.summaryRow}>
+                  <span style={{ ...styles.summaryLabel, color: 'rgb(25, 135, 84)' }}>Discount</span>
+                  <span style={{ ...styles.summaryValue, color: 'rgb(25, 135, 84)' }}>-${discount.toFixed(2)}</span>
+                </div>
+              )}
 
               <div style={styles.summaryTotalRow}>
                 <span style={styles.summaryTotalLabel}>Total</span>
                 <span style={styles.summaryTotalLabel}>${total.toFixed(2)}</span>
               </div>
 
-              <button 
-                type="submit" 
-                style={buttonStyle}
+              <button
+                type="submit"
+                style={{
+                  ...styles.payButton,
+                  ...((isLoading || !agree) ? styles.payButtonDisabled : {}),
+                }}
                 disabled={isLoading || !agree}
               >
+                <Lock width={16} height={16} />
                 {isLoading ? 'Processing...' : 'Pay and Confirm'}
               </button>
-              
-              {error && (
-                <p style={styles.errorText}>{error}</p>
-              )}
+              {error && <span style={{...styles.errorStatus, marginTop: '16px'}}>{error}</span>}
             </div>
           </div>
-
         </form>
       </main>
     </div>
